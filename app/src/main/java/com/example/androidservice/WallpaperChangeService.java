@@ -8,37 +8,35 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import androidx.annotation.Nullable;
+
+import java.io.IOException;
 
 public class WallpaperChangeService extends Service implements Runnable {
-    /*referensi gambar walpaper disimpan dalam sebuah array, wallpaper1 dan wallpaper2
-   adalah nama file png atau jpeg anda */
-    private int wallpaperId[] =  {R.drawable.wallpapersatu, R.drawable.wallpaperdua} ;
-    /*Deklarasi variabel yang digunakan untuk menyimpan durasi yang dipilih user */
+
+    private int wallpaperid[] = {R.drawable.wallpapersatu, R.drawable.wallpaperdua};
     private int waktu;
-    /*Deklarasi variabel flag untuk check gambar mana yang akan ditampilkan berikutnya */
-    private int FLAG=0;
-    private Thread t;
-    /*Deklarasi variabel flag untuk check gambar mana yang akan ditampilkan berikutnya */
+    private int FLAG = 0;
     private Bitmap gambar;
     private Bitmap gambar1;
 
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
-        /**/
-        Bundle bundle = intent.getExtras();
-        /**/
-        waktu = bundle.getInt("durasi");
-        gambar = BitmapFactory.decodeResource(getResources(), wallpaperId[0]);
-        gambar1 = BitmapFactory.decodeResource(getResources(), wallpaperId[1]);
-        /**/
+    public int onStartCommand(Intent intent, int flag, int startid) {
+        super.onStartCommand(intent, flag, startid);
 
-        t = new Thread(WallpaperChangeService.this);
+        Bundle bundle = intent.getExtras();
+
+        waktu = bundle.getInt("durasi");
+        gambar = BitmapFactory.decodeResource(getResources(), wallpaperid[0]);
+        gambar1 = BitmapFactory.decodeResource(getResources(), wallpaperid[1]);
+
+        Thread t = new Thread(WallpaperChangeService.this);
         t.start();
         return START_STICKY_COMPATIBILITY;
     }
@@ -48,25 +46,22 @@ public class WallpaperChangeService extends Service implements Runnable {
         super.onDestroy();
         System.exit(0);
     }
-    /**/
 
     @Override
     public void run() {
         WallpaperManager myWallpaper;
         myWallpaper = WallpaperManager.getInstance(this);
         try {
-            while(true) {
-                if(FLAG==0) {
+            while (true) {
+                if (FLAG == 0) {
                     myWallpaper.setBitmap(gambar);
                     FLAG++;
-                }
-                else {
+                } else {
                     myWallpaper.setBitmap(gambar1);
                     FLAG--;
                 }
-                Thread.sleep(100*waktu);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
